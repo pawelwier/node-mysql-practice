@@ -1,46 +1,21 @@
-var mysql = require('mysql');
+var express = require('express');
+var path = require('path');
+var logger = require('morgan');
 
-var enteredName, enteredCity;
+var get_from_db = require('./db');
+console.log("zxcv" + get_from_db);
 
-var con = mysql.createConnection({
-    host : "127.0.0.1",
-    user : "root",
-    password : "Wezniesql1",
-    database : "sitepoint"
-});
+var indexRouter = require('./routes/index');
 
-con.connect(function(err) {
-    if (err) throw err;
-    console.log('Connected!!!');
-});
+var app = express();
 
-document.getElementById('formsubmit').addEventListener('click', () => {
-    enteredName = document.getElementById('fullname').value;
-    enteredCity = document.getElementById('cityname').value;
-    
-    console.log('Entered values: ' + enteredName + ', ' + enteredCity);
+var db = require('./db');
 
-    var author = {fullname : enteredName, city : enteredCity}
-    con.query('INSERT INTO authors SET ?', author, (err,res) => {
-        if (err) throw err;
+app.use(logger('dev'));
 
-        console.log(res);
-    })
-    
-});
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
-con.query('SELECT fullname, city FROM authors', (err,rows) => {
-    if (err) throw err;
+app.use('/', indexRouter);
 
-    console.log('Data from db:');
-    console.log(rows);
-
-    rows.forEach((row) => {
-        console.log(`The author ${row.fullname} lives in ${row.city}.`)
-    });
-
-});
-
-con.end((err) => {
-    console.log('Finished with grace');
-});
+module.exports = app;
